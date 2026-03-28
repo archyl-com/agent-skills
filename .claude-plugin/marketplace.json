@@ -1,0 +1,15 @@
+{
+  "name": "archyl-marketplace",
+  "metadata": {
+    "description": "A marketplace of Claude Code plugins for working with Archyl (archyl.com) — AI-powered architecture documentation platform"
+  },
+  "owner": {
+    "name": "Archyl"
+  },
+  "plugins": [
+    {
+      "name": "archyl-developer",
+      "source": "./plugins/archyl-developer"
+    }
+  ]
+}
