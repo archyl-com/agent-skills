@@ -1,0 +1,107 @@
+{
+  "name": "Security Baseline",
+  "description": "Enforce security governance rules for architecture-level threat mitigation",
+  "version": "1.0.0",
+  "category": "security",
+  "rules": [
+    {
+      "name": "No Public Services Without API Gateway",
+      "type": "dependency_rule",
+      "description": "All public-facing services must sit behind an API gateway. Direct exposure creates an uncontrolled attack surface without centralized auth, rate limiting, or logging.",
+      "severity": "critical",
+      "config": {
+        "element_tag": "public",
+        "requires_intermediary": "api-gateway",
+        "message": "Public-facing service must be accessed through an API gateway. Direct public exposure is not allowed."
+      }
+    },
+    {
+      "name": "External Dependencies Must Be Documented",
+      "type": "required_pattern",
+      "description": "All external system dependencies must be modeled as explicit relationships. Undocumented external dependencies are invisible risks for security reviews and incident response.",
+      "severity": "high",
+      "config": {
+        "element_type": "relationship",
+        "target_type": "external",
+        "requires_documentation": true,
+        "message": "External dependency must be documented as an explicit relationship with a description."
+      }
+    },
+    {
+      "name": "Database Not Publicly Accessible",
+      "type": "dependency_rule",
+      "description": "Database containers must not be directly accessible from outside the system boundary. All database access must go through an application service.",
+      "severity": "critical",
+      "config": {
+        "target_tag": "database",
+        "source_type": "external",
+        "allowed": false,
+        "message": "Database container must not have direct relationships from external systems. Route access through application services."
+      }
+    },
+    {
+      "name": "Authentication as Separate Service",
+      "type": "required_pattern",
+      "description": "Authentication must be implemented as a dedicated, separate container. Embedding auth logic into business services makes it harder to audit, rotate credentials, and enforce consistent policies.",
+      "severity": "high",
+      "config": {
+        "requires_container_with_tag": "authentication",
+        "min_count": 1,
+        "message": "Architecture must include a dedicated authentication container. Do not embed auth into business services."
+      }
+    },
+    {
+      "name": "No Secrets in Container Configuration",
+      "type": "technology_constraint",
+      "description": "Container descriptions and configurations must not contain secrets, credentials, or connection strings. Secrets must be managed through a dedicated secrets manager or vault.",
+      "severity": "critical",
+      "config": {
+        "element_type": "container",
+        "forbidden_patterns_in_description": [
+          "password=",
+          "secret=",
+          "api_key=",
+          "token=",
+          "-----BEGIN",
+          "connection_string="
+        ],
+        "message": "Container configuration must not contain secrets. Use a secrets manager or vault service."
+      }
+    },
+    {
+      "name": "External API Calls Must Be Documented",
+      "type": "dependency_rule",
+      "description": "All outbound calls to external APIs must be modeled as explicit relationships with descriptions. This enables security review of data flows crossing trust boundaries.",
+      "severity": "high",
+      "config": {
+        "source_type": "internal",
+        "target_type": "external",
+        "requires_relationship": true,
+        "requires_description": true,
+        "message": "External API call must be documented as a relationship with a description of data exchanged."
+      }
+    },
+    {
+      "name": "Encryption Technology for Data at Rest",
+      "type": "technology_constraint",
+      "description": "Database containers must have encryption technology specified, ensuring data at rest is protected by design.",
+      "severity": "high",
+      "config": {
+        "element_tag": "database",
+        "required_technology_tag": "encryption",
+        "message": "Database container must have encryption technology specified for data-at-rest protection."
+      }
+    },
+    {
+      "name": "Network Segmentation Between Layers",
+      "type": "layer_boundary",
+      "description": "Presentation layer containers must not directly access data layer containers. Network segmentation between layers limits blast radius in case of compromise.",
+      "severity": "high",
+      "config": {
+        "source_layer": "presentation",
+        "forbidden_target_layers": ["data", "database"],
+        "message": "Presentation layer must not directly access data layer. Route through application/service layer for network segmentation."
+      }
+    }
+  ]
+}

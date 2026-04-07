@@ -1,0 +1,12 @@
+# Architecture
+
+## Context
+@archyl.txt
+
+## Rules
+
+- Before implementing any feature, run `/archyl-preflight` to validate your approach against the documented architecture.
+- After shipping a feature, run `/archyl-postship` to update architecture documentation.
+- Never introduce a technology that is in "hold" status on the technology radar.
+- All new services must have an API contract documented in Archyl.
+- All async communication must go through documented event channels.

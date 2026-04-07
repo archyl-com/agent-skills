@@ -1,0 +1,115 @@
+{
+  "name": "Clean Architecture",
+  "description": "Enforce clean/hexagonal architecture layer boundaries and dependency direction",
+  "version": "1.0.0",
+  "category": "architecture-pattern",
+  "rules": [
+    {
+      "name": "Domain Must Not Import Infrastructure",
+      "type": "layer_boundary",
+      "description": "The domain layer must never depend on infrastructure. Dependencies must point inward: infrastructure depends on domain, never the reverse. This is the fundamental rule of clean architecture.",
+      "severity": "critical",
+      "config": {
+        "source_layer": "domain",
+        "forbidden_target_layers": ["infrastructure", "infra"],
+        "message": "Domain layer component must not depend on infrastructure. Invert the dependency using an interface."
+      }
+    },
+    {
+      "name": "Use Cases Must Not Import Presentation",
+      "type": "layer_boundary",
+      "description": "Use cases (application layer) must not depend on presentation, handlers, or controllers. The application layer orchestrates domain logic and must remain agnostic to delivery mechanisms.",
+      "severity": "critical",
+      "config": {
+        "source_layer": "application",
+        "forbidden_target_layers": ["presentation", "handler", "controller", "api"],
+        "message": "Use case must not import from the presentation layer. Use cases should be invoked by handlers, not depend on them."
+      }
+    },
+    {
+      "name": "Adapters Must Implement Domain Ports",
+      "type": "required_pattern",
+      "description": "Infrastructure adapters must implement domain-defined interfaces (ports). This ensures the domain remains decoupled from specific implementations.",
+      "severity": "high",
+      "config": {
+        "element_type": "component",
+        "layer": "infrastructure",
+        "requires_interface_implementation": true,
+        "interface_layer": "domain",
+        "message": "Infrastructure adapter must implement a domain port (interface). Define the interface in the domain layer."
+      }
+    },
+    {
+      "name": "No Framework Imports in Domain",
+      "type": "technology_constraint",
+      "description": "Domain layer must not use framework-specific technologies. The domain should be pure business logic, testable without any framework overhead.",
+      "severity": "critical",
+      "config": {
+        "layer": "domain",
+        "forbidden_technologies": ["Spring", "Express", "Django", "Rails", "Gin", "Echo", "Fiber", "NestJS", "FastAPI"],
+        "message": "Domain layer must not depend on framework technologies. Keep domain logic framework-agnostic."
+      }
+    },
+    {
+      "name": "Entities Must Not Depend on External Services",
+      "type": "dependency_rule",
+      "description": "Domain entities must be self-contained. They must not hold references to external services, HTTP clients, or infrastructure components.",
+      "severity": "critical",
+      "config": {
+        "source_tag": "entity",
+        "target_tag": "external-service",
+        "allowed": false,
+        "message": "Entity must not depend on external services. Use a domain service or use case to coordinate external interactions."
+      }
+    },
+    {
+      "name": "Repository Interfaces in Domain Layer",
+      "type": "required_pattern",
+      "description": "Repository interfaces (ports) must be defined in the domain layer, not in infrastructure. This allows the domain to declare its data access needs without knowing the implementation.",
+      "severity": "high",
+      "config": {
+        "element_type": "component",
+        "name_pattern": "(?i)repository",
+        "component_type": "interface",
+        "required_layer": "domain",
+        "message": "Repository interface must be defined in the domain layer, not infrastructure."
+      }
+    },
+    {
+      "name": "No Direct HTTP Calls From Domain",
+      "type": "technology_constraint",
+      "description": "Domain layer must not make HTTP calls directly. External communication must be abstracted behind a port (interface) and implemented in the infrastructure layer.",
+      "severity": "critical",
+      "config": {
+        "layer": "domain",
+        "forbidden_technologies": ["HTTP Client", "REST Client", "gRPC Client", "Axios", "Fetch"],
+        "message": "Domain layer must not use HTTP/network technologies directly. Define a port and implement it in the infrastructure layer."
+      }
+    },
+    {
+      "name": "Handlers Must Only Call Use Cases",
+      "type": "layer_boundary",
+      "description": "Controllers and handlers in the presentation layer must only interact with use cases (application layer), never with repositories or infrastructure directly. This preserves the layered dependency flow.",
+      "severity": "high",
+      "config": {
+        "source_layer": "presentation",
+        "allowed_target_layers": ["application"],
+        "forbidden_target_layers": ["infrastructure", "domain"],
+        "exception_target_layers": ["domain"],
+        "exception_types": ["dto", "value_object"],
+        "message": "Handler must only call use cases. Direct access to repositories or infrastructure from handlers breaks the architecture."
+      }
+    },
+    {
+      "name": "Layered Container Structure",
+      "type": "required_pattern",
+      "description": "Each service container must have clearly separated layers: at minimum a domain layer and an infrastructure layer, ensuring the architecture is consistently structured.",
+      "severity": "high",
+      "config": {
+        "element_type": "container",
+        "requires_components_with_tags": ["domain", "infrastructure"],
+        "message": "Container must have components tagged with both 'domain' and 'infrastructure' layers."
+      }
+    }
+  ]
+}

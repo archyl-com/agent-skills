@@ -1,0 +1,12 @@
+# Architecture Context
+
+Read the file `archyl.txt` at the root of this project before implementing any feature.
+It contains the C4 architecture model, conformance rules, approved technologies, and API contracts.
+
+## Guidelines
+
+- Respect the architecture boundaries defined in archyl.txt.
+- Do not create direct dependencies between services that are not documented.
+- Use approved technologies only (see Technology Stack section in archyl.txt).
+- All new API endpoints must follow existing API contract patterns.
+- Async communication must use documented event channels.

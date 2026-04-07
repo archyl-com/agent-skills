@@ -10,6 +10,42 @@
     {
       "name": "archyl-developer",
       "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-preflight",
+      "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-postship",
+      "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-changelog",
+      "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-review",
+      "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-dora",
+      "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-autofix",
+      "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-roi",
+      "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-predict",
+      "source": "./plugins/archyl-developer"
+    },
+    {
+      "name": "archyl-orchestrate",
+      "source": "./plugins/archyl-developer"
     }
   ]
 }

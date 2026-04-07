@@ -1,0 +1,95 @@
+{
+  "name": "Event-Driven Architecture",
+  "description": "Enforce event-driven communication patterns, schema governance, and channel hygiene",
+  "version": "1.0.0",
+  "category": "architecture-pattern",
+  "rules": [
+    {
+      "name": "Async Communication Via Event Channels",
+      "type": "event_channel_compliance",
+      "description": "All asynchronous communication between services must go through documented event channels. Direct async calls without a channel create invisible coupling and make the system harder to observe.",
+      "severity": "critical",
+      "config": {
+        "relationship_type": "asynchronous",
+        "requires_event_channel": true,
+        "message": "Asynchronous relationship must be routed through a documented event channel."
+      }
+    },
+    {
+      "name": "Event Schema Required",
+      "type": "contract_compliance",
+      "description": "Every event channel must have a defined schema contract (AsyncAPI, Avro, Protobuf, or JSON Schema). Untyped events cause silent failures and make consumer development guesswork.",
+      "severity": "critical",
+      "config": {
+        "element_type": "event_channel",
+        "requires_contract": true,
+        "contract_types": ["asyncapi", "avro", "protobuf", "json-schema"],
+        "message": "Event channel must have an associated schema contract (AsyncAPI, Avro, Protobuf, or JSON Schema)."
+      }
+    },
+    {
+      "name": "No Direct Calls For Async Operations",
+      "type": "dependency_rule",
+      "description": "Operations that are inherently asynchronous (notifications, background processing, data sync) must not use synchronous service-to-service calls. Use event channels to decouple producers from consumers.",
+      "severity": "high",
+      "config": {
+        "relationship_tag": "async-operation",
+        "forbidden_relationship_type": "synchronous",
+        "message": "Async operations must use event channels, not synchronous service-to-service calls."
+      }
+    },
+    {
+      "name": "Event Channel Must Have Producer and Consumer",
+      "type": "event_channel_compliance",
+      "description": "Every event channel must have at least one producer and one consumer linked to it. Orphaned channels are dead code in the architecture and indicate missing or broken integrations.",
+      "severity": "high",
+      "config": {
+        "min_producers": 1,
+        "min_consumers": 1,
+        "message": "Event channel must have at least one producer and one consumer. Remove orphaned channels or complete the integration."
+      }
+    },
+    {
+      "name": "Dead Letter Queue Required",
+      "type": "required_pattern",
+      "description": "All event consumers must have an associated dead letter queue (DLQ) for handling failed messages. Without a DLQ, poison messages can block processing or be silently lost.",
+      "severity": "high",
+      "config": {
+        "element_type": "event_channel",
+        "consumer_requires": "dead_letter_queue",
+        "message": "Event channel consumers must have an associated dead letter queue for failed message handling."
+      }
+    },
+    {
+      "name": "Event Naming Convention",
+      "type": "naming_convention",
+      "description": "Event channel names must follow the domain.action format (e.g., order.created, payment.completed) for consistent discoverability and clear semantics.",
+      "severity": "medium",
+      "config": {
+        "element_type": "event_channel",
+        "pattern": "^[a-z][a-z0-9]*\\.[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$",
+        "message": "Event channel name must follow domain.action format (e.g., order.created, user.registered)."
+      }
+    },
+    {
+      "name": "Event Channel Description Required",
+      "type": "event_channel_compliance",
+      "description": "Every event channel must have a description explaining its purpose, expected payload shape, and typical consumers. This is essential for team discoverability in event-driven systems.",
+      "severity": "medium",
+      "config": {
+        "requires_description": true,
+        "message": "Event channel must have a description explaining its purpose and expected usage."
+      }
+    },
+    {
+      "name": "No Bidirectional Event Channels",
+      "type": "event_channel_compliance",
+      "description": "A single event channel must not be used for both request and response between the same two services. This creates hidden coupling. Use separate channels for commands and replies.",
+      "severity": "high",
+      "config": {
+        "allow_bidirectional": false,
+        "message": "Event channel must not be used bidirectionally between the same services. Use separate channels for request and response."
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+# Agent Instructions
+
+## Architecture Context
+
+This project's architecture is documented in Archyl and summarized in `archyl.txt`.
+All agents MUST read `archyl.txt` before making implementation decisions.
+
+## Pre-Implementation Checklist
+
+Before writing code for any feature:
+
+1. Read `archyl.txt` to understand the current architecture
+2. Identify which C4 elements (systems, containers, components) are affected
+3. Verify your planned approach respects:
+   - Conformance rules (dependency boundaries, technology constraints)
+   - Approved technology stack
+   - Existing API contracts and event channels
+
+## Post-Implementation Checklist
+
+After completing a feature:
+
+1. Document any new services, components, or relationships
+2. Create an ADR if an architectural decision was made
+3. Update API contracts if endpoints were added or changed
+4. Document new event channels if async messaging was introduced
+
+## Architecture Resources
+
+- `archyl.txt` — Auto-generated architecture context (token-optimized)
+- Archyl dashboard — Full interactive C4 model and governance
+- Architecture Change Requests — Submit changes for architect review

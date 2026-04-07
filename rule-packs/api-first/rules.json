@@ -1,0 +1,96 @@
+{
+  "name": "API-First Development",
+  "description": "Enforce API contract-first practices, versioning, and documentation standards",
+  "version": "1.0.0",
+  "category": "architecture-pattern",
+  "rules": [
+    {
+      "name": "Public Services Must Have API Contract",
+      "type": "contract_compliance",
+      "description": "All public-facing services must have a formal API contract (OpenAPI, gRPC, or GraphQL). The contract is the source of truth and must exist before implementation begins.",
+      "severity": "critical",
+      "config": {
+        "element_type": "container",
+        "element_tag": "public",
+        "requires_contract": true,
+        "contract_types": ["openapi", "grpc", "graphql"],
+        "message": "Public-facing service must have an API contract (OpenAPI, gRPC, or GraphQL)."
+      }
+    },
+    {
+      "name": "API Version Must Be Documented",
+      "type": "contract_compliance",
+      "description": "API contracts must include a version identifier. Unversioned APIs make it impossible to manage breaking changes and coordinate consumer migrations.",
+      "severity": "high",
+      "config": {
+        "contract_requires_field": "version",
+        "message": "API contract must include a version identifier."
+      }
+    },
+    {
+      "name": "Breaking Changes Require ADR",
+      "type": "required_pattern",
+      "description": "Any breaking API change must be accompanied by an Architecture Decision Record (ADR) explaining the rationale, migration path, and timeline. This ensures consumers are not blindsided.",
+      "severity": "high",
+      "config": {
+        "on_contract_breaking_change": true,
+        "requires": "adr",
+        "message": "Breaking API change detected. An ADR must document the rationale, impact, and migration plan."
+      }
+    },
+    {
+      "name": "Authentication Documented in Contracts",
+      "type": "contract_compliance",
+      "description": "All API endpoints must document their authentication requirements in the contract. Consumers need to know auth requirements without reading source code.",
+      "severity": "high",
+      "config": {
+        "contract_requires_field": "security",
+        "message": "API contract must document authentication requirements for all endpoints."
+      }
+    },
+    {
+      "name": "Rate Limiting Specified",
+      "type": "contract_compliance",
+      "description": "API contracts for public services must specify rate limiting policies. Without documented limits, consumers cannot build reliable integrations.",
+      "severity": "medium",
+      "config": {
+        "element_tag": "public",
+        "contract_requires_field": "rate_limit",
+        "message": "Public API contract must specify rate limiting policies."
+      }
+    },
+    {
+      "name": "Standard Error Response Format",
+      "type": "contract_compliance",
+      "description": "All API contracts must define error responses using a standard format (RFC 7807 Problem Details or equivalent). Consistent error handling across services reduces consumer integration effort.",
+      "severity": "high",
+      "config": {
+        "contract_requires_field": "error_schema",
+        "standard": "rfc7807",
+        "message": "API contract must define error responses using a standard format (e.g., RFC 7807 Problem Details)."
+      }
+    },
+    {
+      "name": "Internal APIs Must Have Contracts",
+      "type": "contract_compliance",
+      "description": "Internal service-to-service APIs should also have contracts, not just public ones. Internal contracts prevent integration drift and enable automated compatibility checking.",
+      "severity": "medium",
+      "config": {
+        "relationship_type": "synchronous",
+        "scope": "inter-service",
+        "requires_contract": true,
+        "message": "Internal service-to-service API should have a contract to prevent integration drift."
+      }
+    },
+    {
+      "name": "Contract Must Match Implementation",
+      "type": "contract_compliance",
+      "description": "API contracts must be linked to the implementing container. Unlinked contracts are documentation that drifts from reality.",
+      "severity": "high",
+      "config": {
+        "contract_must_be_linked": true,
+        "message": "API contract must be linked to its implementing container to prevent contract drift."
+      }
+    }
+  ]
+}

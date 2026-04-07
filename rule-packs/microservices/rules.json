@@ -1,0 +1,124 @@
+{
+  "name": "Microservices Architecture",
+  "description": "Enforce microservices boundaries, independence, and communication patterns",
+  "version": "1.0.0",
+  "category": "architecture-pattern",
+  "rules": [
+    {
+      "name": "No Shared Databases",
+      "type": "dependency_rule",
+      "description": "Each service must own its data. No two services should depend on the same database container, as shared databases create tight coupling and make independent deployment impossible.",
+      "severity": "critical",
+      "config": {
+        "source_type": "container",
+        "target_type": "container",
+        "target_tag": "database",
+        "max_dependents": 1,
+        "message": "Database container has multiple service dependents. Each service must have its own dedicated database."
+      }
+    },
+    {
+      "name": "Service Must Have Own Container",
+      "type": "required_pattern",
+      "description": "Each microservice must be modeled as its own container to ensure clear deployment boundaries and independent scalability.",
+      "severity": "critical",
+      "config": {
+        "element_type": "system",
+        "requires": "container",
+        "min_count": 1,
+        "message": "Every service system must contain at least one container."
+      }
+    },
+    {
+      "name": "No Direct DB Calls From API Gateway",
+      "type": "dependency_rule",
+      "description": "API gateways must route requests to services, never query databases directly. Direct DB access from the gateway bypasses service logic and breaks encapsulation.",
+      "severity": "critical",
+      "config": {
+        "source_tag": "api-gateway",
+        "target_tag": "database",
+        "allowed": false,
+        "message": "API gateway must not have direct relationships to database containers. Route through the owning service instead."
+      }
+    },
+    {
+      "name": "Inter-Service Communication Via Contracts",
+      "type": "contract_compliance",
+      "description": "All synchronous communication between services must be documented with an API contract (OpenAPI, gRPC, GraphQL). Undocumented inter-service calls create hidden coupling.",
+      "severity": "high",
+      "config": {
+        "relationship_type": "synchronous",
+        "requires_contract": true,
+        "contract_types": ["openapi", "grpc", "graphql"],
+        "message": "Synchronous inter-service relationship must have an associated API contract."
+      }
+    },
+    {
+      "name": "Health Check Component Required",
+      "type": "required_pattern",
+      "description": "Each service container must include a health check component for orchestration, load balancing, and observability.",
+      "severity": "high",
+      "config": {
+        "element_type": "container",
+        "requires": "component",
+        "component_name_pattern": "(?i)health[-_\\s]?check",
+        "message": "Service container must include a health check component."
+      }
+    },
+    {
+      "name": "Maximum Dependency Depth",
+      "type": "dependency_rule",
+      "description": "Dependency chains between services must not exceed 3 hops. Deep chains increase latency, complicate debugging, and create fragile call paths.",
+      "severity": "high",
+      "config": {
+        "max_depth": 3,
+        "scope": "inter-service",
+        "message": "Service dependency chain exceeds 3 levels. Refactor to reduce coupling or introduce async communication."
+      }
+    },
+    {
+      "name": "No Circular Dependencies Between Services",
+      "type": "dependency_rule",
+      "description": "Circular dependencies between services prevent independent deployment and create deadlock risks. Use events or shared contracts to break cycles.",
+      "severity": "critical",
+      "config": {
+        "allow_circular": false,
+        "scope": "inter-service",
+        "message": "Circular dependency detected between services. Break the cycle using event-driven communication or extract shared logic."
+      }
+    },
+    {
+      "name": "Independent Deployment Artifact",
+      "type": "required_pattern",
+      "description": "Each service must be independently deployable with its own Dockerfile or equivalent build artifact, ensuring services can be released on their own schedule.",
+      "severity": "high",
+      "config": {
+        "element_type": "container",
+        "technology_required": ["Docker", "OCI"],
+        "message": "Service container must have Docker or OCI technology assigned for independent deployment."
+      }
+    },
+    {
+      "name": "Service Naming Convention",
+      "type": "naming_convention",
+      "description": "Service names must follow PascalCase convention for consistency across the architecture model and documentation.",
+      "severity": "medium",
+      "config": {
+        "element_type": "system",
+        "pattern": "^[A-Z][a-zA-Z0-9]*$",
+        "message": "Service name must be PascalCase (e.g., OrderService, PaymentGateway)."
+      }
+    },
+    {
+      "name": "Documented Inter-Service Relationships",
+      "type": "dependency_rule",
+      "description": "All inter-service calls must be modeled as explicit relationships with a description. Undocumented relationships are invisible technical debt.",
+      "severity": "medium",
+      "config": {
+        "scope": "inter-service",
+        "requires_description": true,
+        "message": "Inter-service relationship must have a description explaining the interaction."
+      }
+    }
+  ]
+}
