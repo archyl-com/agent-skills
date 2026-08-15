@@ -1,7 +1,7 @@
 {
   "name": "archyl-marketplace",
   "metadata": {
-    "description": "A marketplace of Claude Code plugins for working with Archyl (archyl.com) — AI-powered architecture documentation platform"
+    "description": "A marketplace of Claude Code plugins for working with Archyl (archyl.com) \u2014 AI-powered architecture documentation platform"
   },
   "owner": {
     "name": "Archyl"
@@ -9,43 +9,8 @@
   "plugins": [
     {
       "name": "archyl-developer",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-preflight",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-postship",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-changelog",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-review",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-dora",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-autofix",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-roi",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-predict",
-      "source": "./plugins/archyl-developer"
-    },
-    {
-      "name": "archyl-orchestrate",
-      "source": "./plugins/archyl-developer"
+      "source": "./plugins/archyl-developer",
+      "description": "All 11 Archyl skills (harness work sessions, preflight, postship, review, orchestrate, DORA, ROI, predict, autofix, changelog) plus the Guard hook, in one plugin."
     }
   ]
 }
