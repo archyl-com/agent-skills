@@ -152,6 +152,6 @@ else
 fi
 info "  2. In Claude Code, install the plugin (skills + Guard hook):"
 info "       /plugin marketplace add archyl-com/agent-skills"
-info "       /plugin install archyl-developer@archyl-com-agent-skills"
+info "       /plugin install archyl-developer@archyl-marketplace"
 info "  3. Ask your agent for any change — it will plan, open a work session,"
 info "     and appear live in your project's Fleet console."

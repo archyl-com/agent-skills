@@ -36,16 +36,16 @@ AI agents write better code when they understand the architecture. Archyl gives 
 **Step 2: Install skills**
 
 ```bash
-/plugin install archyl-developer@archyl-com-agent-skills
-/plugin install archyl-preflight@archyl-com-agent-skills
-/plugin install archyl-postship@archyl-com-agent-skills
-/plugin install archyl-changelog@archyl-com-agent-skills
-/plugin install archyl-review@archyl-com-agent-skills
-/plugin install archyl-dora@archyl-com-agent-skills
-/plugin install archyl-autofix@archyl-com-agent-skills
-/plugin install archyl-roi@archyl-com-agent-skills
-/plugin install archyl-predict@archyl-com-agent-skills
-/plugin install archyl-orchestrate@archyl-com-agent-skills
+/plugin install archyl-developer@archyl-marketplace
+/plugin install archyl-preflight@archyl-marketplace
+/plugin install archyl-postship@archyl-marketplace
+/plugin install archyl-changelog@archyl-marketplace
+/plugin install archyl-review@archyl-marketplace
+/plugin install archyl-dora@archyl-marketplace
+/plugin install archyl-autofix@archyl-marketplace
+/plugin install archyl-roi@archyl-marketplace
+/plugin install archyl-predict@archyl-marketplace
+/plugin install archyl-orchestrate@archyl-marketplace
 ```
 
 Restart Claude Code after installation.
