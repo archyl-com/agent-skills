@@ -61,10 +61,14 @@ migrations, contract changes).
 - Unsure of blast radius before an edit? `impact_of(projectId, element)`.
 - Check who else is active: `list_work_sessions(projectId, activeOnly: true)`.
 - Learned something the code cannot show — a deployment quirk, a fragile
-  spot, a historical reason? `remember(projectId, content, element?, kind:
-  note|convention|pitfall)`. One memory per fact, pinned to the element it
-  is about. Working somewhere unfamiliar? `recall(projectId, query)` first —
-  previous agents may have left exactly the warning you need.
+  spot, a historical reason? `remember(projectId, title, content, element?,
+  kind: note|convention|pitfall)`. One memory per fact, pinned to the
+  element it is about. Give it a title, and weave the knowledge graph:
+  `[[Other Memory Title]]`, `[[ElementName]]` and `[[ADR-3]]` in the content
+  become navigable links (a link to a not-yet-existing title attaches when
+  that memory is created). Working somewhere unfamiliar?
+  `recall(projectId, query)` first — previous agents may have left exactly
+  the warning you need.
 
 ### 3. Finish — ALWAYS, even on failure or abandonment
 

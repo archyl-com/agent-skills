@@ -77,6 +77,7 @@ This plugin works with Archyl's MCP (Model Context Protocol) server, which expos
 
 ## Version History
 
+- **0.6.1** -- Memory graph: [[wiki-links]] between memories, C4 elements and ADRs; titles and backlinks in the harness skill guidance.
 - **0.6.0** -- Memory: `remember`/`recall` guidance in the harness skill, memory step in the setup templates, 15-tool coding profile.
 - **0.5.0** -- Added the `archyl-harness` work-session skill and the Archyl Guard `PreToolUse` hook (conformance check on every file write, blocking on critical violations).
 - **0.2.0** -- Restructured SKILL.md with decision tree, few-shot examples, error handling, quick start flow, and allowed-tools. Added reference files for marketplace, whiteboards, global architecture, and change requests.
