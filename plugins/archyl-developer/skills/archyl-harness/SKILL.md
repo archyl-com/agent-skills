@@ -60,6 +60,11 @@ migrations, contract changes).
   sessions expire after 30 minutes without a heartbeat and lose their leases.
 - Unsure of blast radius before an edit? `impact_of(projectId, element)`.
 - Check who else is active: `list_work_sessions(projectId, activeOnly: true)`.
+- Learned something the code cannot show — a deployment quirk, a fragile
+  spot, a historical reason? `remember(projectId, content, element?, kind:
+  note|convention|pitfall)`. One memory per fact, pinned to the element it
+  is about. Working somewhere unfamiliar? `recall(projectId, query)` first —
+  previous agents may have left exactly the warning you need.
 
 ### 3. Finish — ALWAYS, even on failure or abandonment
 

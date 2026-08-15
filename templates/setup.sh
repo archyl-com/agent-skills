@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Archyl Harness Setup
 # One command to make your coding agents architecture-aware:
-#   - .mcp.json        → Archyl MCP server with the 13-tool coding profile
+#   - .mcp.json        → Archyl MCP server with the 15-tool coding profile
 #   - .archyl.json     → project binding for the Guard hook (no secrets)
 #   - CLAUDE.md        → the harness work-session loop for Claude Code
 #   - AGENTS.md        → the same rules for any other agent
@@ -86,7 +86,7 @@ if [ ! -f ".mcp.json" ]; then
   }
 }
 JSON
-  info "Created .mcp.json — Archyl MCP with the coding profile (13 tools)."
+  info "Created .mcp.json — Archyl MCP with the coding profile (15 tools)."
 elif grep -q '"archyl"' .mcp.json; then
   info ".mcp.json already has an archyl server — leaving it untouched."
 elif command -v jq >/dev/null 2>&1; then
@@ -114,6 +114,8 @@ This project's architecture is documented in Archyl. Work under the harness loop
 2. BEFORE changing code, call `start_work_session` (task + your agent name).
    Read the briefing: gate verdict, leased elements, conflicts, decisions, guardrails.
 3. While working, respect every guardrail; call `heartbeat_work_session` on long tasks.
+   `remember` facts the code cannot show (kind: note|convention|pitfall) and
+   `recall` before touching unfamiliar ground.
 4. When done (or abandoning), call `finish_work_session` with an honest summary and
    any architectural decisions. Set `createChangeRequest: true` when the architecture
    changed — a human reviews how the model catches up.
