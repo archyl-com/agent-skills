@@ -5,6 +5,33 @@ Document, model, and govern software architecture with [Archyl](https://archyl.c
 ## Skills
 
 - **`archyl-developer`** -- Guides C4 architecture modeling, ADRs, governance, drift detection, and DORA metrics using Archyl MCP tools.
+- **`archyl-harness`** -- Work-session protocol: declare a unit of work before coding (focused context + advisory leases + preflight gate), heartbeat while working, finish with an outcome that can open an Architecture Change Request.
+
+## Archyl Guard (PreToolUse hook)
+
+The plugin ships a `PreToolUse` hook that runs the project's Archyl conformance
+rules on every file the agent is about to write. Critical violations block the
+edit with an explanation the agent can act on; high-severity ones pass through
+as a visible warning. The hook is **fail-open**: without configuration or
+network access it does nothing.
+
+Enable it by exporting:
+
+```bash
+export ARCHYL_API_KEY=arch_...
+export ARCHYL_PROJECT_ID=<project uuid>
+# optional
+export ARCHYL_API_URL=https://api.archyl.com   # default
+export ARCHYL_GUARD_BLOCK=critical             # critical (default) | high | off
+```
+
+or by placing a `.archyl.json` at the repository root:
+
+```json
+{ "apiUrl": "https://api.archyl.com", "projectId": "<uuid>" }
+```
+
+(prefer the environment variable for the API key).
 
 ## What It Covers
 
@@ -50,5 +77,6 @@ This plugin works with Archyl's MCP (Model Context Protocol) server, which expos
 
 ## Version History
 
+- **0.5.0** -- Added the `archyl-harness` work-session skill and the Archyl Guard `PreToolUse` hook (conformance check on every file write, blocking on critical violations).
 - **0.2.0** -- Restructured SKILL.md with decision tree, few-shot examples, error handling, quick start flow, and allowed-tools. Added reference files for marketplace, whiteboards, global architecture, and change requests.
 - **0.1.0** -- Initial release with full tool catalog and workflows.

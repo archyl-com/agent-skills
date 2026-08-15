@@ -1,134 +1,157 @@
 #!/usr/bin/env bash
-# Archyl Agent Integration Setup
-# Adds architecture context references to your agent configuration files.
+# Archyl Harness Setup
+# One command to make your coding agents architecture-aware:
+#   - .mcp.json        → Archyl MCP server with the 13-tool coding profile
+#   - .archyl.json     → project binding for the Guard hook (no secrets)
+#   - CLAUDE.md        → the harness work-session loop for Claude Code
+#   - AGENTS.md        → the same rules for any other agent
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/archyl-com/agent-skills/main/templates/setup.sh | bash
-#   # or
-#   ./setup.sh
+#   # or, non-interactively:
+#   ARCHYL_API_KEY=arch_... ARCHYL_PROJECT_ID=<uuid> ./setup.sh
 
 set -euo pipefail
-
-TEMPLATES_URL="https://raw.githubusercontent.com/archyl-com/agent-skills/main/templates"
 
 info() { echo "[archyl] $1"; }
 warn() { echo "[archyl] WARNING: $1"; }
 
-# Detect project root (git root or current directory)
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 cd "$PROJECT_ROOT"
+info "Setting up the Archyl Harness in: $PROJECT_ROOT"
 
-info "Setting up Archyl agent integration in: $PROJECT_ROOT"
+# --- Gather configuration ---------------------------------------------------
+API_URL="${ARCHYL_API_URL:-https://api.archyl.com}"
+API_KEY="${ARCHYL_API_KEY:-}"
+PROJECT_ID="${ARCHYL_PROJECT_ID:-}"
 
-# --- CLAUDE.md ---
+prompt() {
+  # curl | bash leaves stdin busy; read from the terminal when we can.
+  local var_name=$1 label=$2 value=""
+  if [ -r /dev/tty ]; then
+    printf "[archyl] %s: " "$label" > /dev/tty
+    IFS= read -r value < /dev/tty || true
+  fi
+  printf '%s' "$value"
+}
+
+if [ -z "$PROJECT_ID" ]; then
+  PROJECT_ID=$(prompt PROJECT_ID "Archyl project ID (Project → Settings → General)")
+fi
+if [ -z "$API_KEY" ]; then
+  API_KEY=$(prompt API_KEY "Archyl API key with write scope (Profile → API Keys, or leave empty to configure later)")
+fi
+
+if [ -z "$PROJECT_ID" ]; then
+  warn "No project ID provided — writing agent files only. Re-run with ARCHYL_PROJECT_ID set to finish."
+fi
+
+# --- .archyl.json (committable: no secrets) ---------------------------------
+if [ -n "$PROJECT_ID" ]; then
+  if [ -f ".archyl.json" ]; then
+    info ".archyl.json already exists — leaving it untouched."
+  else
+    cat > .archyl.json <<JSON
+{
+  "apiUrl": "$API_URL",
+  "projectId": "$PROJECT_ID"
+}
+JSON
+    info "Created .archyl.json (safe to commit — the API key stays in your environment)."
+  fi
+fi
+
+# --- .mcp.json (Archyl MCP server, coding profile) --------------------------
+MCP_URL="$API_URL/mcp?profile=coding"
+mcp_entry() {
+  cat <<JSON
+{
+  "type": "http",
+  "url": "$MCP_URL",
+  "headers": { "X-API-Key": "\${ARCHYL_API_KEY}" }
+}
+JSON
+}
+MCP_ENTRY=$(mcp_entry)
+
+if [ ! -f ".mcp.json" ]; then
+  cat > .mcp.json <<JSON
+{
+  "mcpServers": {
+    "archyl": {
+      "type": "http",
+      "url": "$MCP_URL",
+      "headers": { "X-API-Key": "\${ARCHYL_API_KEY}" }
+    }
+  }
+}
+JSON
+  info "Created .mcp.json — Archyl MCP with the coding profile (13 tools)."
+elif grep -q '"archyl"' .mcp.json; then
+  info ".mcp.json already has an archyl server — leaving it untouched."
+elif command -v jq >/dev/null 2>&1; then
+  tmp=$(mktemp)
+  jq --argjson entry "$MCP_ENTRY" '.mcpServers.archyl = $entry' .mcp.json > "$tmp" && mv "$tmp" .mcp.json
+  info "Added the archyl server to your existing .mcp.json."
+else
+  warn ".mcp.json exists and jq is missing — add this entry to mcpServers manually:"
+  echo "  \"archyl\": $MCP_ENTRY"
+fi
+
+# --- CLAUDE.md --------------------------------------------------------------
 CLAUDE_MD="CLAUDE.md"
-MARKER="@archyl.txt"
+# Emitted via a function: bash 3.2 (macOS default) mis-parses $(...) around a
+# heredoc whose body contains backticks.
+harness_snippet() {
+  cat <<'SNIPPET'
 
-if [ -f "$CLAUDE_MD" ]; then
-  if grep -q "$MARKER" "$CLAUDE_MD"; then
-    info "CLAUDE.md already references archyl.txt — skipping."
-  else
-    info "Appending architecture section to CLAUDE.md..."
-    echo "" >> "$CLAUDE_MD"
-    cat <<'SNIPPET' >> "$CLAUDE_MD"
+# Architecture — Archyl Harness
 
-# Architecture
+This project's architecture is documented in Archyl. Work under the harness loop:
 
-## Context
-@archyl.txt
-
-## Rules
-
-- Before implementing any feature, run `/archyl-preflight` to validate your approach against the documented architecture.
-- After shipping a feature, run `/archyl-postship` to update architecture documentation.
-- Never introduce a technology that is in "hold" status on the technology radar.
+1. For any non-trivial task, call `plan_work` first — it returns an implementation
+   plan grounded in the documented architecture.
+2. BEFORE changing code, call `start_work_session` (task + your agent name).
+   Read the briefing: gate verdict, leased elements, conflicts, decisions, guardrails.
+3. While working, respect every guardrail; call `heartbeat_work_session` on long tasks.
+4. When done (or abandoning), call `finish_work_session` with an honest summary and
+   any architectural decisions. Set `createChangeRequest: true` when the architecture
+   changed — a human reviews how the model catches up.
+5. Never introduce a technology that is in "hold" status on the technology radar.
 SNIPPET
-    info "Done — CLAUDE.md updated."
-  fi
+}
+
+if [ -f "$CLAUDE_MD" ] && grep -q "Archyl Harness" "$CLAUDE_MD"; then
+  info "CLAUDE.md already references the harness — skipping."
 else
-  info "Creating CLAUDE.md with architecture section..."
-  cat <<'SNIPPET' > "$CLAUDE_MD"
-# Architecture
-
-## Context
-@archyl.txt
-
-## Rules
-
-- Before implementing any feature, run `/archyl-preflight` to validate your approach against the documented architecture.
-- After shipping a feature, run `/archyl-postship` to update architecture documentation.
-- Never introduce a technology that is in "hold" status on the technology radar.
-- All new services must have an API contract documented in Archyl.
-- All async communication must go through documented event channels.
-SNIPPET
-  info "Done — CLAUDE.md created."
+  harness_snippet >> "$CLAUDE_MD"
+  info "CLAUDE.md updated with the harness loop."
 fi
 
-# --- .cursorrules ---
-CURSORRULES=".cursorrules"
-
-if [ -f "$CURSORRULES" ]; then
-  if grep -q "archyl.txt" "$CURSORRULES"; then
-    info ".cursorrules already references archyl.txt — skipping."
-  else
-    info "Appending architecture section to .cursorrules..."
-    echo "" >> "$CURSORRULES"
-    cat <<'SNIPPET' >> "$CURSORRULES"
-
-# Architecture Context
-
-Read the file `archyl.txt` at the root of this project before implementing any feature.
-It contains the C4 architecture model, conformance rules, approved technologies, and API contracts.
-SNIPPET
-    info "Done — .cursorrules updated."
-  fi
-else
-  info "No .cursorrules found — skipping (create one manually if you use Cursor)."
-fi
-
-# --- AGENTS.md ---
+# --- AGENTS.md --------------------------------------------------------------
 AGENTS_MD="AGENTS.md"
-
-if [ ! -f "$AGENTS_MD" ]; then
-  info "Creating AGENTS.md..."
-  cat <<'SNIPPET' > "$AGENTS_MD"
-# Agent Instructions
-
-## Architecture Context
-
-This project's architecture is documented in Archyl and summarized in `archyl.txt`.
-All agents MUST read `archyl.txt` before making implementation decisions.
-
-## Pre-Implementation Checklist
-
-Before writing code for any feature:
-
-1. Read `archyl.txt` to understand the current architecture
-2. Identify which C4 elements (systems, containers, components) are affected
-3. Verify your planned approach respects conformance rules and approved technologies
-
-## Post-Implementation Checklist
-
-After completing a feature:
-
-1. Document any new services, components, or relationships
-2. Create an ADR if an architectural decision was made
-3. Update API contracts if endpoints were added or changed
-SNIPPET
-  info "Done — AGENTS.md created."
+if [ -f "$AGENTS_MD" ] && grep -q "Archyl Harness" "$AGENTS_MD"; then
+  info "AGENTS.md already references the harness — skipping."
 else
-  info "AGENTS.md already exists — skipping."
+  harness_snippet >> "$AGENTS_MD"
+  info "AGENTS.md updated with the harness loop."
 fi
 
-# --- .gitignore check ---
-if [ -f ".gitignore" ]; then
-  if grep -q "archyl.txt" ".gitignore"; then
-    warn "archyl.txt is in .gitignore — agents won't see it. Consider removing it."
-  fi
-fi
-
+# --- Wrap up ----------------------------------------------------------------
 echo ""
-info "Setup complete. Next steps:"
-info "  1. Add the generate-context GitHub Action to generate archyl.txt automatically"
-info "  2. Install the archyl-developer plugin: /plugin marketplace add archyl-com/agent-skills"
-info "  3. Run /archyl-preflight before your next feature"
+info "Setup complete. Remaining steps:"
+if [ -n "$API_KEY" ]; then
+  info "  1. Put the API key in your shell profile so agents (and the Guard) find it:"
+  info "       export ARCHYL_API_KEY=$API_KEY"
+  if [ -n "$PROJECT_ID" ]; then
+    info "       export ARCHYL_PROJECT_ID=$PROJECT_ID"
+  fi
+else
+  info "  1. export ARCHYL_API_KEY=<your key>   (Profile → API Keys, write scope)"
+  info "     export ARCHYL_PROJECT_ID=$PROJECT_ID"
+fi
+info "  2. In Claude Code, install the plugin (skills + Guard hook):"
+info "       /plugin marketplace add archyl-com/agent-skills"
+info "       /plugin install archyl-developer@archyl-com-agent-skills"
+info "  3. Ask your agent for any change — it will plan, open a work session,"
+info "     and appear live in your project's Fleet console."
