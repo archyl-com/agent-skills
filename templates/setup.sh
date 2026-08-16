@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Archyl Harness Setup
 # One command to make your coding agents architecture-aware:
-#   - .mcp.json        → Archyl MCP server with the 15-tool coding profile
+#   - .mcp.json        → Archyl MCP server with the 16-tool coding profile
 #   - .archyl.json     → project binding for the Guard hook (no secrets)
 #   - CLAUDE.md        → the harness work-session loop for Claude Code
 #   - AGENTS.md        → the same rules for any other agent
@@ -86,7 +86,7 @@ if [ ! -f ".mcp.json" ]; then
   }
 }
 JSON
-  info "Created .mcp.json — Archyl MCP with the coding profile (15 tools)."
+  info "Created .mcp.json — Archyl MCP with the coding profile (16 tools)."
 elif grep -q '"archyl"' .mcp.json; then
   info ".mcp.json already has an archyl server — leaving it untouched."
 elif command -v jq >/dev/null 2>&1; then

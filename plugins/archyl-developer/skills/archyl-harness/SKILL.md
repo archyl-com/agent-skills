@@ -68,7 +68,14 @@ migrations, contract changes).
   become navigable links (a link to a not-yet-existing title attaches when
   that memory is created). Working somewhere unfamiliar?
   `recall(projectId, query)` first — previous agents may have left exactly
-  the warning you need.
+  the warning you need, and the top matches bring their linked neighbours.
+- Memory has a lifecycle — keep it TRUE, not just full:
+  - a recalled memory proved accurate? `confirm_memory(projectId, memory)`
+    — resets its freshness so it keeps outranking stale information.
+  - a fact changed? `remember(..., supersedes: "Old title")` — never leave
+    two contradictory versions live; the old one keeps its place in history.
+  - unconfirmed memories decay in ranking (45-day half-life); pitfalls
+    outrank notes. Write pitfalls when you hit one.
 
 ### 3. Finish — ALWAYS, even on failure or abandonment
 
