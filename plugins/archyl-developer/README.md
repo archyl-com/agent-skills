@@ -77,6 +77,7 @@ This plugin works with Archyl's MCP (Model Context Protocol) server, which expos
 
 ## Version History
 
+- **0.8.0** -- Memory that learns: recall ranks by meaning as well as words (ask about "rate limiting", find the note about "throttling"), re-stating a known fact confirms it instead of duplicating it, and `usedMemories` on finish credits the memories that actually helped so they outrank the noise.
 - **0.7.0** -- Memory lifecycle: `confirm_memory`, `supersedes` on remember, freshness decay and graph-aware recall guidance; 16-tool coding profile.
 - **0.6.1** -- Memory graph: [[wiki-links]] between memories, C4 elements and ADRs; titles and backlinks in the harness skill guidance.
 - **0.6.0** -- Memory: `remember`/`recall` guidance in the harness skill, memory step in the setup templates, 15-tool coding profile.

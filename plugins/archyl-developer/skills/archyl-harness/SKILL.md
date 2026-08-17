@@ -66,9 +66,16 @@ migrations, contract changes).
   element it is about. Give it a title, and weave the knowledge graph:
   `[[Other Memory Title]]`, `[[ElementName]]` and `[[ADR-3]]` in the content
   become navigable links (a link to a not-yet-existing title attaches when
-  that memory is created). Working somewhere unfamiliar?
-  `recall(projectId, query)` first — previous agents may have left exactly
-  the warning you need, and the top matches bring their linked neighbours.
+  that memory is created). Re-stating a fact that already exists does not
+  create a duplicate: it **confirms** the existing memory, and the response
+  says so (`deduplicated: true`). A near-but-not-identical memory is stored
+  and reported in `similarTo` — read it, and supersede rather than
+  contradict.
+- Working somewhere unfamiliar? `recall(projectId, query, sessionId)` first
+  — previous agents may have left exactly the warning you need. Ranking
+  blends meaning with words, so ask in your own vocabulary: a memory about
+  "throttling" surfaces for a query about "rate limiting". **Pass your
+  `sessionId`**: it is what lets you credit those memories when you finish.
 - Memory has a lifecycle — keep it TRUE, not just full:
   - a recalled memory proved accurate? `confirm_memory(projectId, memory)`
     — resets its freshness so it keeps outranking stale information.
@@ -85,6 +92,7 @@ finish_work_session(
   summary: "<what actually happened>",
   decisions: ["<architectural decisions made, if any>"],
   followUps: ["<known leftover work>"],
+  usedMemories: ["<memories you actually relied on>"],
   createChangeRequest: true,
 )
 ```
@@ -93,6 +101,12 @@ finish_work_session(
   reads. State what changed, where, and why.
 - `decisions` should capture anything ADR-worthy: a new dependency, a
   technology choice, a pattern deviation.
+- `usedMemories` names the memories that actually helped, by title or UUID.
+  This is the only signal that separates knowledge from noise: a memory
+  served often and never named gets demoted, one you cite keeps its place
+  near the top for the next agent. Name them even when they only confirmed
+  what you already suspected. Unmatched names are reported back, not
+  silently dropped.
 - `createChangeRequest: true` opens a **draft Architecture Change Request**
   carrying your summary and decisions so a human reviews how the C4 model
   should catch up. Use it whenever your change affected the architecture
