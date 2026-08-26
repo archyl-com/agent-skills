@@ -99,19 +99,29 @@ finish_work_session(
 
 - `summary` is not a formality: it is the memory the next agent (or human)
   reads. State what changed, where, and why.
-- `decisions` should capture anything ADR-worthy: a new dependency, a
-  technology choice, a pattern deviation.
+- `decisions` should capture anything ADR-worthy, and nothing else: a new
+  dependency, a technology choice, a pattern deviation. Each one becomes a
+  memory of its own, pinned to the elements you held and served back to every
+  future session working there — long after yours ended. Apply the test before
+  writing one: *would this still be true next month, and should it shape
+  someone else's work?* If not, it is situational — how you set up an
+  environment, what you had to debug, a credential or tooling fix — and it
+  belongs in `followUps`. A wrong decision is correctable (`remember(...,
+  supersedes: ...)` on it, or `confirm_memory` once re-verified), but nobody
+  corrects what they never noticed.
 - `usedMemories` names the memories that actually helped, by title or UUID.
   This is the only signal that separates knowledge from noise: a memory
   served often and never named gets demoted, one you cite keeps its place
   near the top for the next agent. Name them even when they only confirmed
   what you already suspected. Unmatched names are reported back, not
   silently dropped.
-- `createChangeRequest: true` opens a **draft Architecture Change Request**
-  carrying your summary and decisions so a human reviews how the C4 model
-  should catch up. Use it whenever your change affected the architecture
-  (new components, dependencies, contracts, or removed elements). Skip it
-  for pure refactors with no architectural footprint.
+- `createChangeRequest` opens a **draft Architecture Change Request** carrying
+  your summary and decisions so a human reviews how the C4 model should catch
+  up. It defaults to `true` as soon as you record decisions — that review is
+  the path by which something you wrote can legitimately become binding. Leave
+  it on whenever your change affected the architecture (new components,
+  dependencies, contracts, or removed elements); pass `false` explicitly for a
+  pure refactor with no architectural footprint.
 - If you abandoned the task, still finish with a summary saying so (or call
   the cancel endpoint) — never leave a session dangling on your name.
 
@@ -123,3 +133,8 @@ finish_work_session(
 3. Treat `warn` gate reasons as review comments: resolve them or explain in
    the finish summary why they do not apply.
 4. The finish summary is written for a reader who did not watch you work.
+5. You may write to the record; you may not legislate in it. Plans present
+   ADRs and conformance rules as binding because a human reviewed them —
+   what you record is served back as dated, attributed context. If something
+   you decided should bind future work, say so in the change request and let
+   a human turn it into an ADR.
